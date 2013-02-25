@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO;
 using System.Net;
 
 namespace SelfishHttp
@@ -9,6 +6,16 @@ namespace SelfishHttp
     {
         private readonly IBodyWriter _bodyWriter;
         private readonly HttpListenerResponse _response;
+
+        private ResponseEncoding ResponseEncoding
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(Headers.Get("Content-Encoding"))) return ResponseEncoding.PlainText;
+                if (Headers.Get("Content-Encoding").Contains("gzip")) return ResponseEncoding.GZip;
+                return Headers.Get("Content-Encoding").Contains("deflate") ? ResponseEncoding.Deflate : ResponseEncoding.PlainText;
+            }
+        }
 
         public Response(IServerConfiguration config, HttpListenerResponse response)
         {
@@ -29,7 +36,7 @@ namespace SelfishHttp
 
         public object Body
         {
-            set { _bodyWriter.WriteBody(value ?? "", _response.OutputStream); }
+            set { _bodyWriter.WriteBody(value ?? "", _response.OutputStream, ResponseEncoding); }
         }
     }
 }

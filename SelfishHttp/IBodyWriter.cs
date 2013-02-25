@@ -4,6 +4,6 @@ namespace SelfishHttp
 {
     public interface IBodyWriter
     {
-        void WriteBody(object o, Stream stream);
+        void WriteBody(object o, Stream stream, ResponseEncoding responseEncoding);
     }
 }

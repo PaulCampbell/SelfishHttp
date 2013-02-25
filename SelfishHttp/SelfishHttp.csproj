@@ -49,8 +49,10 @@
   <ItemGroup>
     <Compile Include="BodyParsers.cs" />
     <Compile Include="BodyWriters.cs" />
-    <Compile Include="GZipCompressionRequestExtensions.cs" />
     <Compile Include="CrossOriginRequestExtensions.cs" />
+    <Compile Include="GZipCompressionRequestExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="HttpHandlerPipeline.cs" />
     <Compile Include="IBodyParser.cs" />
     <Compile Include="IBodyWriter.cs" />
@@ -65,6 +67,7 @@
     <Compile Include="Request.cs" />
     <Compile Include="RequestResponseHandlerExtensions.cs" />
     <Compile Include="Response.cs" />
+    <Compile Include="ResponseEncoding.cs" />
     <Compile Include="ResponseHeadersExtensions.cs" />
     <Compile Include="SecurityHandlerExtensions.cs" />
     <Compile Include="Server.cs" />

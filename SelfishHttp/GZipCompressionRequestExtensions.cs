@@ -1,4 +1,3 @@
-using System.Linq;
 
 namespace SelfishHttp
 {
@@ -10,19 +9,12 @@ namespace SelfishHttp
                                        {
                                            if (!string.IsNullOrEmpty(req.Headers.Get("Accept-Encoding")))
                                            {
-                                               if (req.Headers.Get("Accept-Encoding").Contains("gzip"))
-                                               {
-                                                   res.Headers.Add("Content-Encoding", req.Headers.Get("Accept-Encoding"));
-                                                   res.Body = ZipUpResponseBody(res.Body);
-                                               }
+                                                  res.Headers.Add("Content-Encoding", req.Headers.Get("Accept-Encoding"));
+                                               
                                            }
                                            next();
                                        });
         }
 
-        private static object ZipUpResponseBody(object body)
-        {
-            return "compressed string";
-        }
     }
 }

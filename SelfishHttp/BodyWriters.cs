@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Text;
 
 namespace SelfishHttp
 {
@@ -9,35 +11,47 @@ namespace SelfishHttp
     {
         private readonly List<TypeWriter> _bodyWriters = new List<TypeWriter>();
 
-        public void RegisterBodyWriter<T>(Action<T, Stream> writeBody)
+        public void RegisterBodyWriter<T>(Action<T, Stream> writeBody, ResponseEncoding encoding)
         {
-            _bodyWriters.Insert(0, new TypeWriter { Type = typeof(T), Writer = (o, stream) => writeBody((T)o, stream) });
+            _bodyWriters.Insert(0, new TypeWriter { Type = typeof(T), Writer = (o, stream) => writeBody((T)o, stream), ResponseEncoding = encoding });
         }
 
         public class TypeWriter
         {
             public Type Type;
             public Action<object, Stream> Writer;
+            public ResponseEncoding ResponseEncoding;
         }
 
         public static IBodyWriter DefaultBodyWriter()
         {
-            var writer = new BodyWriters();
-            writer.RegisterBodyWriter<Stream>((stream, outputStream) => stream.CopyTo(outputStream));
-            writer.RegisterBodyWriter<string>((str, outputStream) =>
+            var writers = new BodyWriters();
+            writers.RegisterBodyWriter<Stream>((stream, outputStream) => stream.CopyTo(outputStream), ResponseEncoding.PlainText);
+            writers.RegisterBodyWriter<string>((str, outputStream) =>
                                                   {
                                                       using (var streamWriter = new StreamWriter(outputStream))
                                                       {
                                                           streamWriter.Write(str);
                                                       }
-                                                  });
+                                                  }, ResponseEncoding.PlainText);
+            
+            writers.RegisterBodyWriter<string>((str, outputStream)=>
+                                                {
+                                                    var encoding = new ASCIIEncoding();
+                                                    var data = encoding.GetBytes(str);
+                                                    using (var hgs = new GZipStream(outputStream, CompressionMode.Compress))
+                                                    {
+                                                        hgs.Write(data, 0, data.Length);
+                                                    }
+                                                
+                                                }, ResponseEncoding.GZip);
 
-            return writer;
+            return writers;
         }
 
-        public void WriteBody(object o, Stream stream)
+        public void WriteBody(object o, Stream stream, ResponseEncoding encoding)
         {
-            var writeBody = FindWriterForType(o.GetType());
+            var writeBody = FindWriterForType(o.GetType(), encoding);
 
             if (writeBody != null)
             {
@@ -48,9 +62,10 @@ namespace SelfishHttp
             }
         }
 
-        private Action<object,Stream> FindWriterForType(Type type)
+        private Action<object, Stream> FindWriterForType(Type type, ResponseEncoding responseEncoding)
         {
-            TypeWriter writer = _bodyWriters.FirstOrDefault(typeWriter => typeWriter.Type.IsAssignableFrom(type));
+            TypeWriter writer = _bodyWriters.FirstOrDefault(typeWriter => typeWriter.Type.IsAssignableFrom(type)
+                && typeWriter.ResponseEncoding == responseEncoding);
             return writer != null? writer.Writer: null;
         }
     }
