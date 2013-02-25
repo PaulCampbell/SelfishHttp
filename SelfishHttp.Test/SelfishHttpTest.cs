@@ -292,5 +292,7 @@ namespace SelfishHttp.Test
             var response = client.GetAsync(BaseUrl + "get").Result;
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.InternalServerError));
         }
+
+     
     }
 }

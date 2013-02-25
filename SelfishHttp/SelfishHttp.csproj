@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="BodyParsers.cs" />
     <Compile Include="BodyWriters.cs" />
+    <Compile Include="GZipCompressionRequestExtensions.cs" />
     <Compile Include="CrossOriginRequestExtensions.cs" />
     <Compile Include="HttpHandlerPipeline.cs" />
     <Compile Include="IBodyParser.cs" />
