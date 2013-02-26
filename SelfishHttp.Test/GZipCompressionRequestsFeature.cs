@@ -22,7 +22,7 @@ namespace SelfishHttp.Test
             var response = client.SendAsync(request).Result;
            
             Assert.That(response.Content.Headers.ContentEncoding.First(), Is.EqualTo("gzip"));
-            Assert.That(response.Content.ReadAsByteArrayAsync().Result, Is.EqualTo(GetStringGzipped(stringToZipUp)));
+            Assert.That(UnzipString(response.Content.ReadAsByteArrayAsync().Result), Is.EqualTo(stringToZipUp));
 
         }
 
@@ -45,19 +45,19 @@ namespace SelfishHttp.Test
         }
 
 
-        private byte[] GetStringGzipped(string inputString)
+        private string UnzipString(byte[] zipped)
         {
-            var encoding = new ASCIIEncoding();
-            var data = encoding.GetBytes(inputString);
-            using (var cmpStream = new MemoryStream())
-            using (var hgs = new GZipStream(cmpStream, CompressionMode.Compress))
+            var sampleOut = "";
+            using (var decomStream = new MemoryStream(zipped))
+            using (var hgs = new GZipStream(decomStream, CompressionMode.Decompress))
             {
-                hgs.Write(data, 0, data.Length);
-
-                data = cmpStream.ToArray();
+                using (var reader = new StreamReader(hgs))
+                {
+                    sampleOut = reader.ReadToEnd();
+                }
             }
-            return data;
 
+            return sampleOut;
         }
     }
 }
