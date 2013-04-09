@@ -20,12 +20,10 @@ namespace SelfishHttp.Test
             request.Headers.Add("Accept-Encoding", "gzip");
 
             var response = client.SendAsync(request).Result;
-           
+            
             Assert.That(response.Content.Headers.ContentEncoding.First(), Is.EqualTo("gzip"));
             Assert.That(UnzipString(response.Content.ReadAsByteArrayAsync().Result), Is.EqualTo(stringToZipUp));
-
         }
-
 
         [Test]
         public void NonGZipRequestsDoNotGetZipped()
@@ -48,10 +46,10 @@ namespace SelfishHttp.Test
         private string UnzipString(byte[] zipped)
         {
             var sampleOut = "";
-            using (var decomStream = new MemoryStream(zipped))
-            using (var hgs = new GZipStream(decomStream, CompressionMode.Decompress))
+            using (var decompressStream = new MemoryStream(zipped))
+            using (var gzipStream = new GZipStream(decompressStream, CompressionMode.Decompress))
             {
-                using (var reader = new StreamReader(hgs))
+                using (var reader = new StreamReader(gzipStream))
                 {
                     sampleOut = reader.ReadToEnd();
                 }

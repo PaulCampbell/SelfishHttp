@@ -34,14 +34,14 @@ namespace SelfishHttp
                                                           streamWriter.Write(str);
                                                       }
                                                   }, ResponseEncoding.PlainText);
-            
+
             writers.RegisterBodyWriter<string>((str, outputStream)=>
                                                 {
-                                                    var encoding = new ASCIIEncoding();
+                                                    var encoding = new UTF8Encoding();
                                                     var data = encoding.GetBytes(str);
-                                                    using (var hgs = new GZipStream(outputStream, CompressionMode.Compress))
+                                                    using (var gzipStream = new GZipStream(outputStream, CompressionMode.Compress))
                                                     {
-                                                        hgs.Write(data, 0, data.Length);
+                                                        gzipStream.Write(data, 0, data.Length);
                                                     }
                                                 
                                                 }, ResponseEncoding.GZip);

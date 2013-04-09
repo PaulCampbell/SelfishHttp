@@ -10,7 +10,6 @@ namespace SelfishHttp
                                            if (!string.IsNullOrEmpty(req.Headers.Get("Accept-Encoding")))
                                            {
                                                   res.Headers.Add("Content-Encoding", req.Headers.Get("Accept-Encoding"));
-                                               
                                            }
                                            next();
                                        });
